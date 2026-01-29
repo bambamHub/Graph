@@ -1,48 +1,44 @@
 class Solution {
 public:
-    int minCost(int n, vector<vector<int>>& edges){
+    typedef pair<int, int> P;
+    int minCost(int n, vector<vector<int>>& edges) {
 
-        unordered_map<int, vector<pair<int, int>>> adj;
-        unordered_map<int, vector<pair<int, int>>> radj;
+        unordered_map<int, vector<P>> adj;
 
         for(auto it: edges){
-            adj[it[0]].push_back({it[1], it[2]});
-            adj[it[1]].push_back({it[0], 2*it[2]});
-        }
+            int u = it[0];
+            int v = it[1];
+            int wt = it[2];
 
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+            adj[u].push_back({v, wt});
+            adj[v].push_back({u, 2*wt});
+        }
+        
+        priority_queue<P, vector<P>, greater<P>> pq;
+        vector<int> dist(n, INT_MAX);
+
+        dist[0] = 0;
         pq.push({0, 0});
 
-        vector<int> dist(n, 1e9);
-        dist[0] = 0;
-
         while(!pq.empty()){
-            auto [dis, node] = pq.top();
+            int dis = pq.top().first;
+            int node = pq.top().second;
             pq.pop();
 
-            if(node==n-1) return dis;
-
-            for(auto it: adj[node]){
-                int adjNode = it.first;
-                int edgeWt = it.second;
-
-                if(dis + edgeWt < dist[adjNode]){
-                    dist[adjNode] = dis + edgeWt;
-                    pq.push({dist[adjNode], adjNode});
-                }
+            if(node==n-1){
+                return dist[n-1];
             }
 
-            for(auto it: radj[node]){
-                int adjNode = it.first;
-                int edgeWt = it.second;
-
-                if(dis + edgeWt < dist[adjNode]){
-                    dist[adjNode] = dis + edgeWt;
+            for(auto &p : adj[node]){
+                int adjNode = p.first;
+                int edWt = p.second;
+                if(dis + edWt < dist[adjNode]){
+                    dist[adjNode] = dis + edWt;
                     pq.push({dist[adjNode], adjNode});
                 }
             }
         }
+
         return -1;
-        
     }
 };
